@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio & News</title>
+  <link rel="stylesheet" href="sidebar.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- Portfolio Section (top 1/3) -->
+    <section id="portfolio">
+      <div class="portfolio-header">
+        <span class="portfolio-label">Total Portfolio Value</span>
+        <span class="portfolio-date" id="portfolio-date"></span>
+      </div>
+      <div class="portfolio-value" id="portfolio-value">$0.00</div>
+      <div class="portfolio-change" id="portfolio-change">
+        <span class="change-amount">+$0.00</span>
+        <span class="change-percent">(+0.00%)</span>
+      </div>
+      <div class="portfolio-holdings" id="portfolio-holdings">
+        <!-- Holdings chips rendered by JS -->
+      </div>
+    </section>
+
+    <!-- News Section (bottom 2/3) -->
+    <section id="news">
+      <div class="news-header">
+        <h2>Market News</h2>
+      </div>
+      <div id="news-feed">
+        <!-- News cards rendered by JS -->
+      </div>
+    </section>
+  </div>
+
+  <script src="sidebar.js"></script>
+</body>
+</html>

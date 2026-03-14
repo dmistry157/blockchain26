@@ -1,0 +1,19 @@
+{
+  "name": "insidebar-ai",
+  "version": "1.6.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "web-ext lint --source-dir .",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test:ui": "vitest --ui"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^3.2.4",
+    "happy-dom": "^20.0.2",
+    "vitest": "^3.2.4",
+    "web-ext": "^9.0.0"
+  }
+}
