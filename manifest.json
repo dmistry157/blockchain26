@@ -12,10 +12,16 @@
     "declarativeNetRequest",
     "declarativeNetRequestWithHostAccess",
     "clipboardRead",
-    "alarms"
+    "alarms",
+    "tabCapture",
+    "activeTab",
+    "tabs",
+    "offscreen"
   ],
 
   "host_permissions": [
+    "*://localhost/*",
+    "*://127.0.0.1/*",
     "*://chatgpt.com/*",
     "*://chat.openai.com/*",
     "*://claude.ai/*",
@@ -33,7 +39,9 @@
     "*://news.google.com/*",
     "*://feeds.bbci.co.uk/*",
     "*://rss.nytimes.com/*",
-    "*://search.cnbc.com/*"
+    "*://search.cnbc.com/*",
+    "*://www.twitch.tv/*",
+    "*://twitch.tv/*"
   ],
 
   "optional_host_permissions": [

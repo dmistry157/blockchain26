@@ -3,13 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio & News</title>
+  <title>SpeedrunFi &amp; Stream Watcher</title>
   <link rel="stylesheet" href="sidebar.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="lightweight-charts.js"></script>
 </head>
 <body>
-  <div id="app">
-    <!-- Portfolio Section (top 1/3) -->
+  <nav id="sw-tabs">
+    <button class="sw-tab-btn active" data-tab="main">Dashboard</button>
+    <button class="sw-tab-btn" data-tab="watch">Watch</button>
+    <button class="sw-tab-btn" data-tab="trade">Trade</button>
+  </nav>
+
+  <!-- Dashboard: portfolio + news -->
+  <div id="app" class="sw-tab-panel" data-tab="main">
     <section id="portfolio">
       <div class="portfolio-header">
         <span class="portfolio-label">Total Portfolio Value</span>
@@ -20,22 +26,135 @@
         <span class="change-amount">+$0.00</span>
         <span class="change-percent">(+0.00%)</span>
       </div>
-      <div class="portfolio-holdings" id="portfolio-holdings">
-        <!-- Holdings chips rendered by JS -->
-      </div>
+      <div class="portfolio-holdings" id="portfolio-holdings"></div>
     </section>
-
-    <!-- News Section (bottom 2/3) -->
     <section id="news">
       <div class="news-header">
         <h2>Market News</h2>
       </div>
-      <div id="news-feed">
-        <!-- News cards rendered by JS -->
+      <div id="news-feed"></div>
+    </section>
+  </div>
+
+  <!-- Watch: VLM stream watcher iframe -->
+  <div class="sw-tab-panel" data-tab="watch" style="display:none;flex:1;flex-direction:column;">
+    <iframe
+      id="watcher-frame"
+      src="../extension/stream-watcher/watcher-ui.html"
+      style="flex:1;border:none;width:100%;height:100%;"
+    ></iframe>
+  </div>
+
+  <!-- Trade: prediction market terminal -->
+  <div id="trade-panel" class="sw-tab-panel" data-tab="trade" style="display:none;flex:1;flex-direction:column;min-height:0;">
+    <header id="terminal-header">
+      <div class="header-left">
+        <span class="logo">SpeedrunFi</span>
+        <span id="conn-status" style="font-size:10px;font-weight:600;letter-spacing:0.04em">Connecting...</span>
       </div>
+      <div class="header-right">
+        <span class="balance-label">Balance</span>
+        <span class="balance-value" id="balance-value">$1,000.00</span>
+      </div>
+    </header>
+    <div style="padding:6px 12px;font-size:11px;color:#6b6b7b;border-bottom:1px solid #26262c;background:#0e0e10" id="market-question">Speedrun Market</div>
+    <div id="xrpl-wallet-section" class="xrpl-wallet-section">
+      <div id="xrpl-connect" class="xrpl-connect">
+        <span class="xrpl-badge">XRPL</span>
+        <span class="xrpl-connect-text">Connect wallet to trade on-chain</span>
+        <div class="xrpl-connect-actions">
+          <button id="btn-fund-wallet" class="btn btn-bid">Fund Testnet Wallet</button>
+          <span class="xrpl-connect-sep">or</span>
+          <input type="password" id="xrpl-secret" placeholder="Paste secret (s...)" class="xrpl-secret-input">
+          <button id="btn-import-secret" class="btn btn-ask">Import</button>
+        </div>
+      </div>
+      <div id="xrpl-connected" class="xrpl-connected" style="display:none">
+        <span class="xrpl-badge">XRPL</span>
+        <span id="xrpl-address" class="xrpl-address"></span>
+        <span class="xrpl-balances">
+          <span>CREDIT: <strong id="xrpl-balance-credit">0</strong></span>
+          <span>YES: <strong id="xrpl-balance-yes">0</strong></span>
+          <span>NO: <strong id="xrpl-balance-no">0</strong></span>
+        </span>
+        <button id="btn-disconnect" class="btn xrpl-disconnect">Disconnect</button>
+      </div>
+    </div>
+    <section id="chart-section">
+      <svg id="chart-placeholder" viewBox="0 0 280 140" preserveAspectRatio="none" style="width:100%;height:100%;min-height:140px;display:block;">
+        <defs>
+          <linearGradient id="chartGrad" x1="0" x2="0" y1="1" y2="0">
+            <stop offset="0%" stop-color="#f97316" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="#0a0a0c"/>
+        <line x1="0" y1="35" x2="280" y2="35" stroke="#1a1a1e" stroke-width="0.5"/>
+        <line x1="0" y1="70" x2="280" y2="70" stroke="#1a1a1e" stroke-width="0.5"/>
+        <line x1="0" y1="105" x2="280" y2="105" stroke="#1a1a1e" stroke-width="0.5"/>
+        <polyline fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          points="0,70 28,48 56,95 84,58 112,82 140,38 168,75 196,102 224,62 252,88 280,72"/>
+        <polygon fill="url(#chartGrad)" points="0,70 28,48 56,95 84,58 112,82 140,38 168,75 196,102 224,62 252,88 280,72 280,140 0,140"/>
+        <text x="8" y="18" fill="#6b6b7b" font-size="9" font-family="system-ui,sans-serif">YES %</text>
+        <text x="252" y="132" fill="#6b6b7b" font-size="9" font-family="system-ui,sans-serif">Time</text>
+      </svg>
+      <div id="chart-container" style="display:none"></div>
+      <div class="oracle-bar">
+        <span class="oracle-label">Oracle</span>
+        <span class="oracle-value" id="oracle-value">—</span>
+        <span class="oracle-sep">|</span>
+        <span class="oracle-label">Baseline</span>
+        <span class="oracle-value" id="baseline-value">14:30</span>
+      </div>
+    </section>
+    <section id="trading-section">
+      <div id="order-form">
+        <h3>Place Order</h3>
+        <div class="form-row outcome-row">
+          <label class="outcome-option">
+            <input type="radio" name="outcome" value="YES" checked>
+            <span class="outcome-label yes-label">YES</span>
+          </label>
+          <label class="outcome-option">
+            <input type="radio" name="outcome" value="NO">
+            <span class="outcome-label no-label">NO</span>
+          </label>
+        </div>
+        <div class="form-row">
+          <label for="target-price">Price (1–99¢)</label>
+          <input type="number" id="target-price" placeholder="e.g. 50" min="1" max="99" step="1">
+        </div>
+        <div class="form-row">
+          <label for="quantity">Contracts</label>
+          <input type="number" id="quantity" placeholder="e.g. 10" min="1" step="1">
+        </div>
+        <div class="button-row">
+          <button id="btn-buy" class="btn btn-bid">Buy</button>
+          <button id="btn-sell" class="btn btn-ask">Sell</button>
+        </div>
+        <div id="order-status" class="order-status"></div>
+      </div>
+      <div id="order-book">
+        <h3 id="order-book-title">Order Book</h3>
+        <div class="book-columns">
+          <div class="book-side book-bids">
+            <div class="book-header"><span>Bid</span><span>Qty</span></div>
+            <div id="bids-list" class="book-list"></div>
+          </div>
+          <div class="book-side book-asks">
+            <div class="book-header"><span>Ask</span><span>Qty</span></div>
+            <div id="asks-list" class="book-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="suggested-markets">
+      <h3>Suggested Markets</h3>
+      <div id="suggested-list" class="suggested-list"></div>
     </section>
   </div>
 
   <script src="sidebar.js"></script>
+  <script src="watcher-tab.js"></script>
 </body>
 </html>

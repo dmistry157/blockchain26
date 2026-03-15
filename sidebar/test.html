@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head><title>WS Debug</title></head>
+<body style="background:#111;color:#eee;font-family:monospace;padding:20px">
+<h2>WebSocket Debug</h2>
+<pre id="log" style="white-space:pre-wrap"></pre>
+<button onclick="placeTrade()" style="padding:10px 20px;font-size:16px;margin-top:10px">BUY YES @ 62¢ x 3</button>
+<script>
+  const log = document.getElementById('log');
+  function l(msg) { log.textContent += new Date().toISOString().slice(11,19) + ' ' + msg + '\n'; }
+
+  l('Starting WebSocket...');
+  let ws;
+  let mktId = 'default';
+
+  try {
+    ws = new WebSocket('ws://localhost:8080');
+    l('WebSocket created, readyState=' + ws.readyState);
+  } catch(e) {
+    l('ERROR creating WebSocket: ' + e.message);
+  }
+
+  ws.onopen = () => {
+    l('CONNECTED');
+    ws.send(JSON.stringify({action:'register',userId:'browser_test'}));
+  };
+  ws.onclose = (e) => l('CLOSED code=' + e.code + ' reason=' + e.reason);
+  ws.onerror = (e) => l('ERROR (see console)');
+  ws.onmessage = (e) => {
+    const m = JSON.parse(e.data);
+    l('MSG: ' + m.type + ' → ' + JSON.stringify(m).slice(0, 150));
+    if (m.type === 'init' && m.markets && m.markets[0]) {
+      mktId = m.markets[0].id;
+      l('Market ID: ' + mktId);
+    }
+  };
+
+  function placeTrade() {
+    if (!ws || ws.readyState !== 1) { l('Not connected!'); return; }
+    const payload = {action:'placeOrder',userId:'browser_test',marketId:mktId,side:'YES',orderSide:'BUY',price:0.62,amount:3};
+    l('SENDING: ' + JSON.stringify(payload));
+    ws.send(JSON.stringify(payload));
+  }
+</script>
+</body>
+</html>
